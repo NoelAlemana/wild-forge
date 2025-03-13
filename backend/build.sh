@@ -4,6 +4,8 @@ pip install -r requirements.txt
 
 python backend/manage.py collectstatic --no-input
 
+python backend/manage.py makemigrations
+
 python backend/manage.py migrate
 
 python backend/manage.py loaddata backend/api/fixtures/gemini_fixture.json
