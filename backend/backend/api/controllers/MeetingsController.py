@@ -564,7 +564,7 @@ class MeetingsController(viewsets.GenericViewSet,
 
         meeting.status = "completed"
         meeting.video = None
-        # meeting.save()~
+        meeting.save()
         print("Complete Meeting: ")
         template_instance = SpringBoardTemplate.objects.filter(title = "Pitch").first()
         if not template_instance:
