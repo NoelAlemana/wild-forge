@@ -370,6 +370,7 @@ class MeetingsController(viewsets.GenericViewSet,
         meeting = self.get_object()
 
         presentors = MeetingPresentorSerializer(meeting.presentors.all(), many=True).data
+        print("Summarizing: ")
 
         for presentor in presentors:
             remarks = RemarkSerializer(Remark.objects.filter(meeting_id=meeting.id, pitch_id=presentor['pitch_id']), many=True).data    
@@ -391,7 +392,7 @@ class MeetingsController(viewsets.GenericViewSet,
                 'meeting_id': meeting.id,
                 'feedback': openai_response.choices[0].message.content
             }
-
+            print("Feedback Summary: " + openai_response.choices[0].message.content)
             feedback_serializer = FeedbackSerializer(data=feedback)
 
             if not feedback_serializer.is_valid():
