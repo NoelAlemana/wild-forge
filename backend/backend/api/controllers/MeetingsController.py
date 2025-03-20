@@ -687,7 +687,7 @@ class MeetingsController(viewsets.GenericViewSet,
                 criteria_feedback=criteria_json_string,
                 score=average_score,
                 )
-                spring_project.score = (spring_projectboard.score + int(average_score))/2
+                spring_project.score = (spring_project.score + int(average_score))
                 print("Created New")
             else:
                 spring_project.score -= spring_projectboard.score
