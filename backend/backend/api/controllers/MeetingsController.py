@@ -374,13 +374,17 @@ class MeetingsController(viewsets.GenericViewSet,
         print("API KEY: " + os.environ.get('OPENAI_KEY'))
 
         for presentor in presentors:
+            print("Presentors: ")
             try:
+                print("RemarkSerializer: ")
                 remarks = RemarkSerializer(Remark.objects.filter(meeting_id=meeting.id, pitch_id=presentor['pitch_id']), many=True).data    
                 prompt = '\n\n'.join(remark['remark'] for remark in remarks if 'remark' in remark)
 
+                print("Prompt: ")
                 complete_prompt = f'Please provide a concise summary of the remarks. Highlight key strengths and areas for improvement mentioned by each evaluator. Provide it into a single paragraph.{prompt}'
 
                 client = OpenAI(api_key=os.environ.get('OPENAI_KEY'))
+                print("OPENAI: ")
                 openai_response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[{
