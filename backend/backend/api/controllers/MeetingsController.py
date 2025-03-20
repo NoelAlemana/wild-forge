@@ -371,30 +371,33 @@ class MeetingsController(viewsets.GenericViewSet,
 
         presentors = MeetingPresentorSerializer(meeting.presentors.all(), many=True).data
         print("Summarizing: ")
+        print("API KEY: " + os.environ.get('OPENAI_KEY'))
 
         for presentor in presentors:
-            remarks = RemarkSerializer(Remark.objects.filter(meeting_id=meeting.id, pitch_id=presentor['pitch_id']), many=True).data    
-            prompt = '\n\n'.join(remark['remark'] for remark in remarks if 'remark' in remark)
+            try:
+                remarks = RemarkSerializer(Remark.objects.filter(meeting_id=meeting.id, pitch_id=presentor['pitch_id']), many=True).data    
+                prompt = '\n\n'.join(remark['remark'] for remark in remarks if 'remark' in remark)
 
-            complete_prompt = f'Please provide a concise summary of the remarks. Highlight key strengths and areas for improvement mentioned by each evaluator. Provide it into a single paragraph.{prompt}'
+                complete_prompt = f'Please provide a concise summary of the remarks. Highlight key strengths and areas for improvement mentioned by each evaluator. Provide it into a single paragraph.{prompt}'
 
-            client = OpenAI(api_key=os.environ.get('OPENAI_KEY'))
-            openai_response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{
-                    'role': 'user', 'content': complete_prompt
-                }],
-                temperature=0
-            )
+                client = OpenAI(api_key=os.environ.get('OPENAI_KEY'))
+                openai_response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{
+                        'role': 'user', 'content': complete_prompt
+                    }],
+                    temperature=0
+                )
 
-            feedback = {
-                'pitch_id': presentor['pitch_id'],
-                'meeting_id': meeting.id,
-                'feedback': openai_response.choices[0].message.content
-            }
-            print("Feedback Summary: " + openai_response.choices[0].message.content)
-            feedback_serializer = FeedbackSerializer(data=feedback)
-
+                feedback = {
+                    'pitch_id': presentor['pitch_id'],
+                    'meeting_id': meeting.id,
+                    'feedback': openai_response.choices[0].message.content
+                }
+                print("Feedback Summary: " + openai_response.choices[0].message.content)
+                feedback_serializer = FeedbackSerializer(data=feedback)
+            except Exception as e:
+                print(f"Error: {e}")
             if not feedback_serializer.is_valid():
                 return Response(feedback_serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
     
